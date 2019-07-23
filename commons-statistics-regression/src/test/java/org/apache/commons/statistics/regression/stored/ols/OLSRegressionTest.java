@@ -37,30 +37,6 @@ public class OLSRegressionTest extends AbstractRegressionTest {
     private double[][] xData;
     private double[] yData;
 
-    @Test
-    public void cannotAddSampleDataWithSizeMismatch() {
-        double[] y = new double[] {1.0, 2.0};
-        double[][] x = new double[1][];
-        x[0] = new double[] {1.0, 0};
-        Assertions.assertThrows(IllegalArgumentException.class, () -> myData.inputNewSampleData(y, x));
-    }
-
-    /**
-     * Verifies that calculateYVariance and calculateResidualVariance return
-     * consistent values with direct variance computation from Y, residuals,
-     * respectively.
-     */
-    protected void checkVarianceConsistency(AbstractRegression model) {
-        // Check Y variance consistency
-        Assertions.assertEquals(StatUtils.variance(model.getY().toArray1D()), model.estimateRegressandVariance(), 0);
-
-        // Check residual variance consistency
-        double[] residuals = model.estimateResiduals();
-        StatisticsMatrix xMatrix = model.getX();
-        Assertions.assertEquals(StatUtils.variance(model.estimateResiduals()) * (residuals.length - 1),
-            model.calculateRegressionErrorVariance() * (xMatrix.numRows() - xMatrix.numCols()), 1E-8);
-    }
-
     @Override
     protected AbstractRegression createRegression(RegressionDataLoader myData) {
         OLSRegression regression = new OLSRegression(myData.getInputData());
@@ -90,6 +66,30 @@ public class OLSRegressionTest extends AbstractRegressionTest {
         xData[5] = new double[] {0, 0, 0, 0, 6.0};
         myData = new RegressionDataLoader(yData, xData);
         super.setUp();
+    }
+
+    /**
+     * Verifies that calculateYVariance and calculateResidualVariance return
+     * consistent values with direct variance computation from Y, residuals,
+     * respectively.
+     */
+    protected void checkVarianceConsistency(AbstractRegression model) {
+        // Check Y variance consistency
+        Assertions.assertEquals(StatUtils.variance(model.getY().toArray1D()), model.estimateRegressandVariance(), 0);
+
+        // Check residual variance consistency
+        double[] residuals = model.estimateResiduals();
+        StatisticsMatrix xMatrix = model.getX();
+        Assertions.assertEquals(StatUtils.variance(model.estimateResiduals()) * (residuals.length - 1),
+            model.calculateRegressionErrorVariance() * (xMatrix.numRows() - xMatrix.numCols()), 1E-8);
+    }
+
+    @Test
+    public void cannotAddSampleDataWithSizeMismatch() {
+        double[] y = new double[] {1.0, 2.0};
+        double[][] x = new double[1][];
+        x[0] = new double[] {1.0, 0};
+        Assertions.assertThrows(IllegalArgumentException.class, () -> myData.inputNewSampleData(y, x));
     }
 
     /**
